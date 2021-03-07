@@ -7,7 +7,7 @@ wget_test_file=CentOS_BuildTag
 email_address=yang.yuanpeng@trs.com.cn
 
 #判断用户是否为：root
-if [ `env |grep USER | cut -d "=" -f 2` != "root" ];then
+if [ `env |grep -e "^USER" | cut -d "=" -f 2` != "root" ];then
    echo "请切换到root用户执行该程序！！！" && exit 1
 fi
 
@@ -23,7 +23,7 @@ fi
 
 #-----------------------------------
 #配置离线yum源
-yum_url=${current_path}/iso/centos7.7/
+yum_url=${current_path}/iso/${version}/
   
 #备份已有的yum源文件
 ls -d /etc/yum.repos.d/yum_bak &> /dev/null || mkdir -p /etc/yum.repos.d/yum_bak 
@@ -95,9 +95,10 @@ check_ok_for_server dhcpd 67
 yum -y install httpd &> /dev/null && systemctl restart httpd &> /dev/null && systemctl enable httpd &> /dev/null
 check_ok_for_server httpd 80
 #代理iso文件
-ls -d /var/www/html/ &> /dev/null && /usr/bin/cp -a ./iso/${version} /var/www/html/
+mkdir -p /var/www/html/iso &> /dev/null
+ls -d /var/www/html/iso &> /dev/null  && /usr/bin/cp -a ./iso/${version}/* /var/www/html/iso
 yum -y install wget &> /dev/null 
-wget http://${apache_ip}/iso/${wget_test_file} &> /dev/null && echo "Apache访问正常." 
+wget http://${apache_ip}/iso/${wget_test_file} &> /dev/null && echo "Apache访问正常." && rm -rf ./${wget_test_file}*
 if [ $? != "0" ];then
   echo -e "Apache访问不正常,请联系管理员.\nhttp://${apache_ip}/iso/"
   exit 3
@@ -106,7 +107,7 @@ fi
 yum -y install tftp-server &> /dev/null && systemctl restart tftp &> /dev/null && systemctl enable tftp &> /dev/null
 check_ok_for_server tftp 69
 #准备相应文件
-/usr/bin/cp ./tftpboot/* /var/lib/tftpboot/ &> /dev/null 
+/usr/bin/cp -a  ./tftpboot/* /var/lib/tftpboot/ &> /dev/null 
 if [ $? != "0" ];then 
   echo "Boot文件安装失败,请联系管理员."
   exit 3
@@ -116,6 +117,8 @@ ls /var/lib/tftpboot/pxelinux.cfg/default &> /dev/null && sed -i "s/apache_ip/${
 echo "${version}镜像访问地址:http://${apache_ip}/iso/,可用于PXE安装源."
 echo "恭喜你完成PXE服务端的部署,请在${subnet}/${netmask}域中进行PXE网络安装,网络安装服务器内存建议不少于2G."
 echo "如有疑问，请反馈至邮箱:<${email_address}>,感谢您的使用."
+
+
 
 
 
