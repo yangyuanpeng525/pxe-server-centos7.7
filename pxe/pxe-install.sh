@@ -121,11 +121,3 @@ ls /var/lib/tftpboot/pxelinux.cfg/default &> /dev/null && sed -i "s/apache_ip/${
 echo "${version}镜像访问地址:http://${apache_ip}/iso/,可用于PXE安装源."
 echo "恭喜你完成PXE服务端的部署,请在${subnet}/${netmask}域中进行PXE网络安装,网络安装服务器内存建议不少于2G."
 echo "如有疑问，请反馈至邮箱:<${email_address}>,感谢您的使用."
-
-
-
-
-
-
-
-
