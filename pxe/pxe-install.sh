@@ -24,6 +24,7 @@ fi
 #-----------------------------------
 #selinux+firewalld
 setenforce 0 &> /dev/null 
+sed -i 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
 systemctl stop  firewalld.service &> /dev/null  && systemctl disable firewalld.service &> /dev/null
 #----------------------------------
 #配置离线yum源
